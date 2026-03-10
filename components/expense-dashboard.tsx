@@ -15,7 +15,8 @@ import { CategoryChart } from './category-chart'
 import { SpendingTrends, MonthlyTrendsList } from './spending-trends'
 import { SplitBillUtility } from './split-bill'
 import { MonthlySummary } from './monthly-summary'
-import { LayoutDashboard, PieChart, Receipt, Users, Settings, Wallet } from 'lucide-react'
+import Image from 'next/image'
+import { LayoutDashboard, PieChart, Receipt, Users, Settings } from 'lucide-react'
 
 export function ExpenseDashboard() {
   const { settings, updateSettings } = useExpenses()
@@ -34,12 +35,16 @@ export function ExpenseDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Wallet className="h-6 w-6 text-primary" />
-              </div>
+              <Image 
+                src="/logo.png" 
+                alt="SmartSpend Logo" 
+                width={48} 
+                height={48}
+                className="rounded-lg"
+              />
               <div>
-                <h1 className="text-xl font-bold text-foreground">StudentSpend</h1>
-                <p className="text-xs text-muted-foreground">Smart expense tracking</p>
+                <h1 className="text-xl font-bold text-foreground">SmartSpend</h1>
+                <p className="text-xs text-muted-foreground">Maximize Your Finances</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -173,7 +178,7 @@ export function ExpenseDashboard() {
       <footer className="border-t border-border py-6 mt-12">
         <div className="container mx-auto px-4">
           <p className="text-center text-sm text-muted-foreground">
-            StudentSpend - Smart expense tracking for students
+            SmartSpend - Maximize Your Finances
           </p>
         </div>
       </footer>
