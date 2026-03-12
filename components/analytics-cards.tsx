@@ -1,12 +1,19 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useExpenses } from '@/lib/expense-store'
 import { formatCurrency } from '@/lib/expense-engine'
 import { Flame, Clock, TrendingDown, Wallet, CircleDollarSign, ShoppingBag } from 'lucide-react'
 
 export function AnalyticsCards() {
+  const [mounted, setMounted] = useState(false)
   const { analytics, settings } = useExpenses()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const burnRateColor = analytics.dailyBurnRate > settings.monthlyBudget / 30 
     ? 'text-destructive' 
@@ -19,6 +26,25 @@ export function AnalyticsCards() {
       : 'text-success'
 
   const balancePercentage = (analytics.remainingBalance / settings.monthlyBudget) * 100
+
+  if (!mounted) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i} className="bg-card border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-5 rounded" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-3 w-20" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

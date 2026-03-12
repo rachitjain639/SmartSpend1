@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useExpenses } from '@/lib/expense-store'
 import { formatCurrency, quickSortTransactions, binarySearchDateRange } from '@/lib/expense-engine'
 import { CATEGORY_CONFIG } from '@/lib/types'
@@ -9,9 +10,16 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 export function SpendingTrends() {
+  const [mounted, setMounted] = useState(false)
   const { transactions } = useExpenses()
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const dailySpendingData = useMemo(() => {
+    if (!mounted) return []
+    
     const now = new Date()
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     
@@ -41,7 +49,21 @@ export function SpendingTrends() {
     }
 
     return result
-  }, [transactions])
+  }, [transactions, mounted])
+
+  if (!mounted) {
+    return (
+      <Card className="bg-card border-border/50">
+        <CardHeader>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-64 mt-2" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[250px] w-full" />
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="bg-card border-border/50">
@@ -105,7 +127,30 @@ function TrendTooltip({ active, payload, label }: { active?: boolean; payload?: 
 }
 
 export function MonthlyTrendsList() {
+  const [mounted, setMounted] = useState(false)
   const { analytics } = useExpenses()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <Card className="bg-card border-border/50">
+        <CardHeader>
+          <Skeleton className="h-6 w-36" />
+          <Skeleton className="h-4 w-40 mt-2" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-14 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (analytics.monthlyTrends.length === 0) {
     return (

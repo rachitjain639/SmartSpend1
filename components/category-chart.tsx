@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useExpenses } from '@/lib/expense-store'
 import { formatCurrency } from '@/lib/expense-engine'
 import { CATEGORY_CONFIG, type Category } from '@/lib/types'
@@ -30,7 +31,12 @@ interface ChartDataItem {
 }
 
 export function CategoryChart() {
+  const [mounted, setMounted] = useState(false)
   const { analytics } = useExpenses()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const chartData = useMemo<ChartDataItem[]>(() => {
     return analytics.categoryBreakdown
@@ -43,6 +49,19 @@ export function CategoryChart() {
         percentage: item.percentage
       }))
   }, [analytics.categoryBreakdown])
+
+  if (!mounted) {
+    return (
+      <Card className="bg-card border-border/50">
+        <CardHeader>
+          <Skeleton className="h-6 w-44" />
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px]">
+          <Skeleton className="h-[200px] w-[200px] rounded-full" />
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (chartData.length === 0) {
     return (

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useExpenses } from '@/lib/expense-store'
 import { formatCurrency } from '@/lib/expense-engine'
+import { createClient } from '@/lib/supabase/client'
 import { AnalyticsCards } from './analytics-cards'
 import { TransactionForm } from './transaction-form'
 import { TransactionList } from './transaction-list'
@@ -16,12 +18,29 @@ import { SpendingTrends, MonthlyTrendsList } from './spending-trends'
 import { SplitBillUtility } from './split-bill'
 import { MonthlySummary } from './monthly-summary'
 import Image from 'next/image'
-import { LayoutDashboard, PieChart, Receipt, Users, Settings } from 'lucide-react'
+import { LayoutDashboard, PieChart, Receipt, Users, Settings, LogOut, User } from 'lucide-react'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
-export function ExpenseDashboard() {
+interface ExpenseDashboardProps {
+  user: SupabaseUser
+}
+
+export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
+  const router = useRouter()
   const { settings, updateSettings } = useExpenses()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [budget, setBudget] = useState(settings.monthlyBudget.toString())
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/auth/login')
+    router.refresh()
+  }
+
+  const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
 
   const handleSaveSettings = () => {
     updateSettings({ monthlyBudget: parseFloat(budget) || settings.monthlyBudget })
@@ -48,6 +67,12 @@ export function ExpenseDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* User Info */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-lg">
+                <User className="h-4 w-4 text-primary" />
+                <span className="text-sm text-foreground font-medium">{userName}</span>
+              </div>
+              
               <TransactionForm />
               <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                 <DialogTrigger asChild>
@@ -85,6 +110,17 @@ export function ExpenseDashboard() {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {/* Logout Button */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="border-border text-foreground hover:text-destructive hover:border-destructive/50"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
