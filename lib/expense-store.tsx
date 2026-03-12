@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from 'react'
 import type { Transaction, Category, TriageType, SplitBill, SplitBillParticipant, UserSettings, AnalyticsData } from './types'
 import { calculateAnalytics, generateId } from './expense-engine'
 
@@ -9,6 +9,7 @@ interface ExpenseContextType {
   splitBills: SplitBill[]
   settings: UserSettings
   analytics: AnalyticsData
+  isLoading: boolean
   addTransaction: (transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>) => void
   updateTransaction: (id: string, updates: Partial<Transaction>) => void
   deleteTransaction: (id: string) => void
@@ -82,18 +83,42 @@ function generateSampleData(): Transaction[] {
   return transactions
 }
 
+// Default analytics to avoid hydration mismatch
+const defaultAnalytics: AnalyticsData = {
+  totalSpent: 0,
+  dailyBurnRate: 0,
+  daysToBroke: Infinity,
+  remainingBalance: 0,
+  needsTotal: 0,
+  wantsTotal: 0,
+  needsWantsRatio: { needs: 0, wants: 0 },
+  categoryBreakdown: [],
+  monthlyTrends: []
+}
+
 export function ExpenseProvider({ children }: { children: ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>(() => generateSampleData())
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [splitBills, setSplitBills] = useState<SplitBill[]>([])
   const [settings, setSettings] = useState<UserSettings>({
     monthlyBudget: 2000,
     savingsGoal: 300,
-    currency: 'USD'
+    currency: 'INR'
   })
+  const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Generate sample data only on client after mount to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+    const sampleData = generateSampleData()
+    setTransactions(sampleData)
+    setIsLoading(false)
+  }, [])
 
   const analytics = useMemo(() => {
+    if (!mounted) return defaultAnalytics
     return calculateAnalytics(transactions, settings.monthlyBudget)
-  }, [transactions, settings.monthlyBudget])
+  }, [transactions, settings.monthlyBudget, mounted])
 
   const addTransaction = useCallback((transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date()
@@ -149,6 +174,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     splitBills,
     settings,
     analytics,
+    isLoading,
     addTransaction,
     updateTransaction,
     deleteTransaction,
