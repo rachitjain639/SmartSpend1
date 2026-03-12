@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useExpenses } from '@/lib/expense-store'
@@ -8,12 +7,7 @@ import { formatCurrency } from '@/lib/expense-engine'
 import { Flame, Clock, TrendingDown, Wallet, CircleDollarSign, ShoppingBag } from 'lucide-react'
 
 export function AnalyticsCards() {
-  const [mounted, setMounted] = useState(false)
-  const { analytics, settings } = useExpenses()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { analytics, settings, isLoading } = useExpenses()
 
   const burnRateColor = analytics.dailyBurnRate > settings.monthlyBudget / 30 
     ? 'text-destructive' 
@@ -27,7 +21,7 @@ export function AnalyticsCards() {
 
   const balancePercentage = (analytics.remainingBalance / settings.monthlyBudget) * 100
 
-  if (!mounted) {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[...Array(6)].map((_, i) => (

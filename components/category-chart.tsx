@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useExpenses } from '@/lib/expense-store'
@@ -31,12 +31,7 @@ interface ChartDataItem {
 }
 
 export function CategoryChart() {
-  const [mounted, setMounted] = useState(false)
-  const { analytics } = useExpenses()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { analytics, isLoading } = useExpenses()
 
   const chartData = useMemo<ChartDataItem[]>(() => {
     return analytics.categoryBreakdown
@@ -50,7 +45,7 @@ export function CategoryChart() {
       }))
   }, [analytics.categoryBreakdown])
 
-  if (!mounted) {
+  if (isLoading) {
     return (
       <Card className="bg-card border-border/50">
         <CardHeader>

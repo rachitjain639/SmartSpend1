@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useExpenses } from '@/lib/expense-store'
@@ -10,15 +10,10 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 export function SpendingTrends() {
-  const [mounted, setMounted] = useState(false)
-  const { transactions } = useExpenses()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { transactions, isLoading } = useExpenses()
 
   const dailySpendingData = useMemo(() => {
-    if (!mounted) return []
+    if (isLoading) return []
     
     const now = new Date()
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
@@ -49,9 +44,9 @@ export function SpendingTrends() {
     }
 
     return result
-  }, [transactions, mounted])
+  }, [transactions, isLoading])
 
-  if (!mounted) {
+  if (isLoading) {
     return (
       <Card className="bg-card border-border/50">
         <CardHeader>
@@ -127,14 +122,9 @@ function TrendTooltip({ active, payload, label }: { active?: boolean; payload?: 
 }
 
 export function MonthlyTrendsList() {
-  const [mounted, setMounted] = useState(false)
-  const { analytics } = useExpenses()
+  const { analytics, isLoading } = useExpenses()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
+  if (isLoading) {
     return (
       <Card className="bg-card border-border/50">
         <CardHeader>
