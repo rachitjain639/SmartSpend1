@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -12,13 +12,16 @@ import { formatCurrency } from '@/lib/expense-engine'
 import { createClient } from '@/lib/supabase/client'
 import { AnalyticsCards } from './analytics-cards'
 import { TransactionForm } from './transaction-form'
+import { AddBalanceForm } from './add-balance-form'
 import { TransactionList } from './transaction-list'
 import { CategoryChart } from './category-chart'
 import { SpendingTrends, MonthlyTrendsList } from './spending-trends'
 import { SplitBillUtility } from './split-bill'
 import { MonthlySummary } from './monthly-summary'
+import { ContactSection } from './contact-section'
+import { ThemeToggle } from './theme-toggle'
 import Image from 'next/image'
-import { LayoutDashboard, PieChart, Receipt, Users, Settings, LogOut, User } from 'lucide-react'
+import { LayoutDashboard, PieChart, Receipt, Users, Settings, LogOut, User, Sparkles } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface ExpenseDashboardProps {
@@ -50,51 +53,68 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Image 
-                src="/logo.png" 
-                alt="SmartSpend Logo" 
-                width={48} 
-                height={48}
-                className="rounded-lg"
-              />
+              <div className="relative">
+                <Image 
+                  src="/logo.png" 
+                  alt="SmartSpend Logo" 
+                  width={48} 
+                  height={48}
+                  className="rounded-xl shadow-lg"
+                />
+                <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-emerald text-white">
+                  <Sparkles className="h-3 w-3" />
+                </div>
+              </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">SmartSpend</h1>
-                <p className="text-xs text-muted-foreground">Maximize Your Finances</p>
+                <p className="text-xs text-muted-foreground">Track Expenses Smartly</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* User Info */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-lg">
-                <User className="h-4 w-4 text-primary" />
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-secondary/80 rounded-xl border border-border">
+                <div className="p-1.5 rounded-lg bg-primary/10">
+                  <User className="h-4 w-4 text-primary" />
+                </div>
                 <span className="text-sm text-foreground font-medium">{userName}</span>
               </div>
               
+              {/* Action Buttons */}
+              <AddBalanceForm />
               <TransactionForm />
+              
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
+              {/* Settings */}
               <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="border-border text-foreground">
+                  <Button variant="outline" size="icon" className="border-border hover:bg-secondary">
                     <Settings className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-card border-border">
                   <DialogHeader>
-                    <DialogTitle className="text-foreground">Budget Settings</DialogTitle>
+                    <DialogTitle className="text-foreground flex items-center gap-2">
+                      <Settings className="h-5 w-5 text-primary" />
+                      Budget Settings
+                    </DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4 mt-4">
+                  <div className="space-y-5 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="budget" className="text-foreground">Monthly Budget</Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
                         <Input
                           id="budget"
                           type="number"
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
-                          className="pl-7 bg-secondary border-border text-foreground"
+                          className="pl-8 bg-secondary border-border text-foreground"
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -117,7 +137,7 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
                 size="icon"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="border-border text-foreground hover:text-destructive hover:border-destructive/50"
+                className="border-border hover:text-destructive hover:border-destructive/50"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -129,31 +149,31 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="bg-secondary border border-border p-1 w-full sm:w-auto inline-flex">
+          <TabsList className="bg-secondary/50 border border-border p-1.5 w-full sm:w-auto inline-flex rounded-xl">
             <TabsTrigger
               value="dashboard"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger
               value="transactions"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <Receipt className="h-4 w-4" />
               <span className="hidden sm:inline">Transactions</span>
             </TabsTrigger>
             <TabsTrigger
               value="analytics"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <PieChart className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
             <TabsTrigger
               value="split"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Split Bills</span>
@@ -210,14 +230,8 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
         </Tabs>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-6 mt-12">
-        <div className="container mx-auto px-4">
-          <p className="text-center text-sm text-muted-foreground">
-            SmartSpend - Maximize Your Finances
-          </p>
-        </div>
-      </footer>
+      {/* Contact Section / Footer */}
+      <ContactSection />
     </div>
   )
 }

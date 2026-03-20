@@ -3,91 +3,108 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Golden Hour Dark Theme - Warm amber tones on soft dark backgrounds */
+/* Modern Gen-Z Light Theme - Fresh, vibrant, and clean */
 :root {
-  --background: oklch(0.13 0.01 60);
-  --foreground: oklch(0.95 0.02 80);
-  --card: oklch(0.16 0.015 55);
-  --card-foreground: oklch(0.95 0.02 80);
-  --popover: oklch(0.14 0.012 58);
-  --popover-foreground: oklch(0.95 0.02 80);
-  --primary: oklch(0.75 0.15 65);
-  --primary-foreground: oklch(0.12 0.01 60);
-  --secondary: oklch(0.22 0.02 55);
-  --secondary-foreground: oklch(0.90 0.03 75);
-  --muted: oklch(0.20 0.015 55);
-  --muted-foreground: oklch(0.65 0.03 70);
-  --accent: oklch(0.70 0.12 55);
-  --accent-foreground: oklch(0.12 0.01 60);
-  --destructive: oklch(0.55 0.20 25);
-  --destructive-foreground: oklch(0.95 0.02 80);
-  --border: oklch(0.25 0.02 55);
-  --input: oklch(0.20 0.015 55);
-  --ring: oklch(0.75 0.15 65);
-  --chart-1: oklch(0.75 0.15 65);
-  --chart-2: oklch(0.65 0.12 50);
-  --chart-3: oklch(0.60 0.10 35);
-  --chart-4: oklch(0.70 0.08 80);
-  --chart-5: oklch(0.55 0.15 30);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.11 0.01 60);
-  --sidebar-foreground: oklch(0.95 0.02 80);
-  --sidebar-primary: oklch(0.75 0.15 65);
-  --sidebar-primary-foreground: oklch(0.12 0.01 60);
-  --sidebar-accent: oklch(0.20 0.02 55);
-  --sidebar-accent-foreground: oklch(0.95 0.02 80);
-  --sidebar-border: oklch(0.22 0.015 55);
-  --sidebar-ring: oklch(0.75 0.15 65);
+  --background: oklch(0.98 0.005 250);
+  --foreground: oklch(0.15 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 250);
+  --primary: oklch(0.65 0.22 145);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.01 250);
+  --secondary-foreground: oklch(0.25 0.02 250);
+  --muted: oklch(0.93 0.01 250);
+  --muted-foreground: oklch(0.45 0.02 250);
+  --accent: oklch(0.70 0.18 180);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.90 0.01 250);
+  --input: oklch(0.95 0.005 250);
+  --ring: oklch(0.65 0.22 145);
+  --chart-1: oklch(0.65 0.22 145);
+  --chart-2: oklch(0.65 0.20 280);
+  --chart-3: oklch(0.70 0.18 35);
+  --chart-4: oklch(0.65 0.18 180);
+  --chart-5: oklch(0.60 0.20 330);
+  --radius: 1rem;
+  --sidebar: oklch(0.97 0.005 250);
+  --sidebar-foreground: oklch(0.15 0.02 250);
+  --sidebar-primary: oklch(0.65 0.22 145);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.93 0.01 250);
+  --sidebar-accent-foreground: oklch(0.15 0.02 250);
+  --sidebar-border: oklch(0.90 0.01 250);
+  --sidebar-ring: oklch(0.65 0.22 145);
   
-  /* Custom Golden Hour Colors */
-  --amber: oklch(0.75 0.15 65);
-  --amber-glow: oklch(0.80 0.18 70);
-  --amber-muted: oklch(0.55 0.10 60);
-  --warm-gray: oklch(0.35 0.02 55);
-  --success: oklch(0.65 0.15 145);
-  --warning: oklch(0.70 0.15 85);
-  --need: oklch(0.65 0.12 50);
-  --want: oklch(0.60 0.18 25);
+  /* Gen-Z Accent Colors */
+  --emerald: oklch(0.65 0.22 145);
+  --emerald-glow: oklch(0.70 0.25 145);
+  --emerald-muted: oklch(0.50 0.15 145);
+  --violet: oklch(0.65 0.20 280);
+  --coral: oklch(0.70 0.18 35);
+  --teal: oklch(0.65 0.18 180);
+  --pink: oklch(0.70 0.20 330);
+  --success: oklch(0.65 0.20 145);
+  --warning: oklch(0.75 0.18 85);
+  --need: oklch(0.60 0.18 180);
+  --want: oklch(0.65 0.20 330);
 }
 
+/* Modern Gen-Z Dark Theme - Sleek, vibrant accents on dark backgrounds */
 .dark {
-  --background: oklch(0.13 0.01 60);
-  --foreground: oklch(0.95 0.02 80);
-  --card: oklch(0.16 0.015 55);
-  --card-foreground: oklch(0.95 0.02 80);
-  --popover: oklch(0.14 0.012 58);
-  --popover-foreground: oklch(0.95 0.02 80);
-  --primary: oklch(0.75 0.15 65);
-  --primary-foreground: oklch(0.12 0.01 60);
-  --secondary: oklch(0.22 0.02 55);
-  --secondary-foreground: oklch(0.90 0.03 75);
-  --muted: oklch(0.20 0.015 55);
-  --muted-foreground: oklch(0.65 0.03 70);
-  --accent: oklch(0.70 0.12 55);
-  --accent-foreground: oklch(0.12 0.01 60);
-  --destructive: oklch(0.55 0.20 25);
-  --destructive-foreground: oklch(0.95 0.02 80);
-  --border: oklch(0.25 0.02 55);
-  --input: oklch(0.20 0.015 55);
-  --ring: oklch(0.75 0.15 65);
-  --chart-1: oklch(0.75 0.15 65);
-  --chart-2: oklch(0.65 0.12 50);
-  --chart-3: oklch(0.60 0.10 35);
-  --chart-4: oklch(0.70 0.08 80);
-  --chart-5: oklch(0.55 0.15 30);
-  --sidebar: oklch(0.11 0.01 60);
-  --sidebar-foreground: oklch(0.95 0.02 80);
-  --sidebar-primary: oklch(0.75 0.15 65);
-  --sidebar-primary-foreground: oklch(0.12 0.01 60);
-  --sidebar-accent: oklch(0.20 0.02 55);
-  --sidebar-accent-foreground: oklch(0.95 0.02 80);
-  --sidebar-border: oklch(0.22 0.015 55);
-  --sidebar-ring: oklch(0.75 0.15 65);
+  --background: oklch(0.12 0.015 270);
+  --foreground: oklch(0.95 0.01 270);
+  --card: oklch(0.16 0.02 270);
+  --card-foreground: oklch(0.95 0.01 270);
+  --popover: oklch(0.14 0.015 270);
+  --popover-foreground: oklch(0.95 0.01 270);
+  --primary: oklch(0.70 0.22 145);
+  --primary-foreground: oklch(0.10 0.02 145);
+  --secondary: oklch(0.22 0.02 270);
+  --secondary-foreground: oklch(0.90 0.01 270);
+  --muted: oklch(0.20 0.015 270);
+  --muted-foreground: oklch(0.65 0.02 270);
+  --accent: oklch(0.70 0.18 180);
+  --accent-foreground: oklch(0.10 0.02 180);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.95 0.01 270);
+  --border: oklch(0.28 0.02 270);
+  --input: oklch(0.20 0.015 270);
+  --ring: oklch(0.70 0.22 145);
+  --chart-1: oklch(0.70 0.22 145);
+  --chart-2: oklch(0.70 0.20 280);
+  --chart-3: oklch(0.75 0.18 35);
+  --chart-4: oklch(0.70 0.18 180);
+  --chart-5: oklch(0.65 0.20 330);
+  --sidebar: oklch(0.10 0.015 270);
+  --sidebar-foreground: oklch(0.95 0.01 270);
+  --sidebar-primary: oklch(0.70 0.22 145);
+  --sidebar-primary-foreground: oklch(0.10 0.02 145);
+  --sidebar-accent: oklch(0.20 0.02 270);
+  --sidebar-accent-foreground: oklch(0.95 0.01 270);
+  --sidebar-border: oklch(0.25 0.015 270);
+  --sidebar-ring: oklch(0.70 0.22 145);
+  
+  /* Gen-Z Accent Colors - Dark Mode */
+  --emerald: oklch(0.70 0.22 145);
+  --emerald-glow: oklch(0.75 0.25 145);
+  --emerald-muted: oklch(0.55 0.15 145);
+  --violet: oklch(0.70 0.20 280);
+  --coral: oklch(0.75 0.18 35);
+  --teal: oklch(0.70 0.18 180);
+  --pink: oklch(0.75 0.20 330);
+  --success: oklch(0.70 0.20 145);
+  --warning: oklch(0.78 0.18 85);
+  --need: oklch(0.65 0.18 180);
+  --want: oklch(0.70 0.20 330);
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -124,11 +141,14 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Custom Golden Hour Colors */
-  --color-amber: var(--amber);
-  --color-amber-glow: var(--amber-glow);
-  --color-amber-muted: var(--amber-muted);
-  --color-warm-gray: var(--warm-gray);
+  /* Gen-Z Accent Colors */
+  --color-emerald: var(--emerald);
+  --color-emerald-glow: var(--emerald-glow);
+  --color-emerald-muted: var(--emerald-muted);
+  --color-violet: var(--violet);
+  --color-coral: var(--coral);
+  --color-teal: var(--teal);
+  --color-pink: var(--pink);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-need: var(--need);
@@ -142,4 +162,40 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Smooth theme transition */
+html {
+  transition: color-scheme 0.3s ease;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+/* Modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }

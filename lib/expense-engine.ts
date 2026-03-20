@@ -176,10 +176,30 @@ export function calculateMonthlyTrends(transactions: Transaction[]): MonthlyTren
   return trends.sort((a, b) => Math.abs(b.percentageChange) - Math.abs(a.percentageChange))
 }
 
+// Get transactions for a specific period
+export function getTransactionsForPeriod(
+  transactions: Transaction[],
+  period: 'monthly' | 'quarterly'
+): Transaction[] {
+  const now = new Date()
+  let startDate: Date
+
+  if (period === 'monthly') {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+  } else {
+    // Quarterly - last 3 months
+    startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+  }
+
+  const sortedTransactions = quickSortTransactions(transactions, 'date', true)
+  return binarySearchDateRange(sortedTransactions, startDate, now)
+}
+
 // Full analytics calculation
 export function calculateAnalytics(
   transactions: Transaction[],
-  monthlyBudget: number
+  monthlyBudget: number,
+  balance?: number
 ): AnalyticsData {
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -191,7 +211,8 @@ export function calculateAnalytics(
   const needsTotal = monthTransactions.filter((t) => t.triage === 'need').reduce((sum, t) => sum + t.amount, 0)
   const wantsTotal = monthTransactions.filter((t) => t.triage === 'want').reduce((sum, t) => sum + t.amount, 0)
 
-  const remainingBalance = Math.max(0, monthlyBudget - totalSpent)
+  // Use provided balance or calculate from budget
+  const remainingBalance = balance !== undefined ? balance : Math.max(0, monthlyBudget - totalSpent)
   const dailyBurnRate = calculateDailyBurnRate(transactions)
   const daysToBroke = calculateDaysToBroke(remainingBalance, dailyBurnRate)
 
@@ -216,7 +237,15 @@ export function generateId(): string {
 
 // Format currency
 export function formatCurrency(amount: number, currency = 'INR'): string {
-  return new Intl.NumberFormat('en-IN', {
+  if (currency === 'INR') {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
     minimumFractionDigits: 2
@@ -230,4 +259,9 @@ export function formatDate(date: Date): string {
     day: 'numeric',
     year: 'numeric'
   }).format(date)
+}
+
+// Convert USD to INR
+export function convertUsdToInr(usd: number, rate = 83.50): number {
+  return Math.round(usd * rate * 100) / 100
 }
