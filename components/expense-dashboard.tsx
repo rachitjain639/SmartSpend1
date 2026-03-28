@@ -19,7 +19,7 @@ import { MonthlySummary } from './monthly-summary'
 import { ContactSection } from './contact-section'
 import { ThemeToggle } from './theme-toggle'
 import Image from 'next/image'
-import { LayoutDashboard, PieChart, Receipt, Users, Settings, Sparkles } from 'lucide-react'
+import { LayoutDashboard, PieChart, Receipt, Users, Settings } from 'lucide-react'
 
 export function ExpenseDashboard() {
   const { settings, updateSettings } = useExpenses()
@@ -37,23 +37,15 @@ export function ExpenseDashboard() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Image 
-                  src="/logo.png" 
-                  alt="SmartSpend Logo" 
-                  width={48} 
-                  height={48}
-                  className="rounded-xl shadow-lg"
-                />
-                <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-emerald text-white">
-                  <Sparkles className="h-3 w-3" />
-                </div>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">SmartSpend</h1>
-                <p className="text-xs text-muted-foreground">Track Expenses Smartly</p>
-              </div>
+            <div className="flex items-center gap-4">
+              <Image 
+                src="/smartspend-logo.png" 
+                alt="SmartSpend Logo" 
+                width={140} 
+                height={60}
+                className="h-12 w-auto"
+                priority
+              />
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Action Buttons */}
