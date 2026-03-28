@@ -113,7 +113,9 @@ function SplitBillForm({ onSuccess }: { onSuccess: () => void }) {
         name: p.name,
         share: sharePerPerson,
         paid: p.name === paidBy
-      }))
+      })),
+      messages: [],
+      status: 'pending'
     })
 
     onSuccess()

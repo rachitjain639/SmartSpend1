@@ -176,7 +176,9 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
   const addSplitBill = useCallback((bill: Omit<SplitBill, 'id'>) => {
     const newBill: SplitBill = {
       ...bill,
-      id: generateId()
+      id: generateId(),
+      messages: bill.messages || [],
+      status: bill.status || 'pending'
     }
     setSplitBills((prev) => [...prev, newBill])
   }, [])

@@ -1,5 +1,3 @@
-// Core Transaction Types for Student Expense Management
-
 export type TriageType = 'need' | 'want'
 
 export type Category = 
@@ -38,6 +36,15 @@ export interface SplitBillParticipant {
   paid: boolean
 }
 
+export interface SplitMessage {
+  id: string
+  author: string
+  text: string
+  mentions: string[]
+  timestamp: Date
+  type: 'message' | 'reminder' | 'status_update'
+}
+
 export interface SplitBill {
   id: string
   totalAmount: number
@@ -45,6 +52,8 @@ export interface SplitBill {
   date: Date
   participants: SplitBillParticipant[]
   paidBy: string
+  messages: SplitMessage[]
+  status: 'pending' | 'partially_settled' | 'settled'
 }
 
 export interface MonthlyTrend {
@@ -62,6 +71,7 @@ export interface AnalyticsData {
   remainingBalance: number
   needsTotal: number
   wantsTotal: number
+  needsWantsRatio: { needs: number; wants: number }
   categoryBreakdown: { category: Category; amount: number; percentage: number }[]
   monthlyTrends: MonthlyTrend[]
   averageTransactionSize: number

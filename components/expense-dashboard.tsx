@@ -15,6 +15,7 @@ import { TransactionList } from './transaction-list'
 import { CategoryChart } from './category-chart'
 import { SpendingTrends, MonthlyTrendsList } from './spending-trends'
 import { SplitBillUtility } from './split-bill'
+import { SplitTransactionHistory } from './split-transaction-history'
 import { MonthlySummary } from './monthly-summary'
 import { ContactSection } from './contact-section'
 import { ThemeToggle } from './theme-toggle'
@@ -37,13 +38,13 @@ export function ExpenseDashboard() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 group cursor-pointer">
               <Image 
                 src="/smartspend-logo.png" 
                 alt="SmartSpend Logo" 
-                width={140} 
-                height={60}
-                className="h-12 w-auto"
+                width={180} 
+                height={80}
+                className="h-14 sm:h-16 w-auto transition-transform duration-300 group-hover:scale-105 drop-shadow-md group-hover:drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]"
                 priority
               />
             </div>
@@ -176,9 +177,17 @@ export function ExpenseDashboard() {
 
           {/* Split Bills Tab */}
           <TabsContent value="split" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SplitBillUtility />
-              <MonthlySummary />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <SplitTransactionHistory 
+                  splitBills={splitBills}
+                  onUpdateBill={(id, updates) => updateSplitBill(id, updates)}
+                />
+              </div>
+              <div className="space-y-6">
+                <SplitBillUtility />
+                <MonthlySummary />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
