@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,38 +8,24 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useExpenses } from '@/lib/expense-store'
 import { formatCurrency } from '@/lib/expense-engine'
-import { createClient } from '@/lib/supabase/client'
 import { AnalyticsCards } from './analytics-cards'
 import { TransactionForm } from './transaction-form'
+import { AddBalanceForm } from './add-balance-form'
 import { TransactionList } from './transaction-list'
 import { CategoryChart } from './category-chart'
 import { SpendingTrends, MonthlyTrendsList } from './spending-trends'
 import { SplitBillUtility } from './split-bill'
+import { SplitTransactionHistory } from './split-transaction-history'
 import { MonthlySummary } from './monthly-summary'
+import { ContactSection } from './contact-section'
+import { ThemeToggle } from './theme-toggle'
 import Image from 'next/image'
-import { LayoutDashboard, PieChart, Receipt, Users, Settings, LogOut, User } from 'lucide-react'
-import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { LayoutDashboard, PieChart, Receipt, Users, Settings } from 'lucide-react'
 
-interface ExpenseDashboardProps {
-  user: SupabaseUser
-}
-
-export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
-  const router = useRouter()
-  const { settings, updateSettings } = useExpenses()
+export function ExpenseDashboard() {
+  const { settings, updateSettings, splitBills, updateSplitBill } = useExpenses()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [budget, setBudget] = useState(settings.monthlyBudget.toString())
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  const handleLogout = async () => {
-    setLoggingOut(true)
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/auth/login')
-    router.refresh()
-  }
-
-  const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
 
   const handleSaveSettings = () => {
     updateSettings({ monthlyBudget: parseFloat(budget) || settings.monthlyBudget })
@@ -50,51 +35,52 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 group cursor-pointer">
               <Image 
-                src="/logo.png" 
+                src="/smartspend-logo.png" 
                 alt="SmartSpend Logo" 
-                width={48} 
-                height={48}
-                className="rounded-lg"
+                width={180} 
+                height={80}
+                className="h-14 sm:h-16 w-auto transition-transform duration-300 group-hover:scale-105 drop-shadow-md group-hover:drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                priority
               />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">SmartSpend</h1>
-                <p className="text-xs text-muted-foreground">Maximize Your Finances</p>
-              </div>
             </div>
-            <div className="flex items-center gap-3">
-              {/* User Info */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-lg">
-                <User className="h-4 w-4 text-primary" />
-                <span className="text-sm text-foreground font-medium">{userName}</span>
-              </div>
-              
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Action Buttons */}
+              <AddBalanceForm />
               <TransactionForm />
+              
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
+              {/* Settings */}
               <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="border-border text-foreground">
+                  <Button variant="outline" size="icon" className="border-border hover:bg-secondary">
                     <Settings className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-card border-border">
                   <DialogHeader>
-                    <DialogTitle className="text-foreground">Budget Settings</DialogTitle>
+                    <DialogTitle className="text-foreground flex items-center gap-2">
+                      <Settings className="h-5 w-5 text-primary" />
+                      Budget Settings
+                    </DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4 mt-4">
+                  <div className="space-y-5 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="budget" className="text-foreground">Monthly Budget</Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
                         <Input
                           id="budget"
                           type="number"
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
-                          className="pl-7 bg-secondary border-border text-foreground"
+                          className="pl-8 bg-secondary border-border text-foreground"
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -110,17 +96,6 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
                   </div>
                 </DialogContent>
               </Dialog>
-
-              {/* Logout Button */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleLogout}
-                disabled={loggingOut}
-                className="border-border text-foreground hover:text-destructive hover:border-destructive/50"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
@@ -129,31 +104,31 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="bg-secondary border border-border p-1 w-full sm:w-auto inline-flex">
+          <TabsList className="bg-secondary/50 border border-border p-1.5 w-full sm:w-auto inline-flex rounded-xl">
             <TabsTrigger
               value="dashboard"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger
               value="transactions"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <Receipt className="h-4 w-4" />
               <span className="hidden sm:inline">Transactions</span>
             </TabsTrigger>
             <TabsTrigger
               value="analytics"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <PieChart className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
             <TabsTrigger
               value="split"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Split Bills</span>
@@ -202,22 +177,24 @@ export function ExpenseDashboard({ user }: ExpenseDashboardProps) {
 
           {/* Split Bills Tab */}
           <TabsContent value="split" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SplitBillUtility />
-              <MonthlySummary />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <SplitTransactionHistory 
+                  splitBills={splitBills}
+                  onUpdateBill={(id, updates) => updateSplitBill(id, updates)}
+                />
+              </div>
+              <div className="space-y-6">
+                <SplitBillUtility />
+                <MonthlySummary />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-6 mt-12">
-        <div className="container mx-auto px-4">
-          <p className="text-center text-sm text-muted-foreground">
-            SmartSpend - Maximize Your Finances
-          </p>
-        </div>
-      </footer>
+      {/* Contact Section / Footer */}
+      <ContactSection />
     </div>
   )
 }

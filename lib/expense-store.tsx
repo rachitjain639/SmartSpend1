@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from 'react'
-import type { Transaction, Category, TriageType, SplitBill, SplitBillParticipant, UserSettings, AnalyticsData } from './types'
+import type { Transaction, Category, TriageType, SplitBill, UserSettings, AnalyticsData, PaymentMethod } from './types'
 import { calculateAnalytics, generateId } from './expense-engine'
 
 interface ExpenseContextType {
@@ -17,13 +17,16 @@ interface ExpenseContextType {
   updateSplitBill: (id: string, updates: Partial<SplitBill>) => void
   deleteSplitBill: (id: string) => void
   updateSettings: (updates: Partial<UserSettings>) => void
+  addBalance: (amount: number) => void
+  addCustomCategory: (category: string) => void
 }
 
 const ExpenseContext = createContext<ExpenseContextType | null>(null)
 
 // Sample data generator for demo
 function generateSampleData(): Transaction[] {
-  const categories: Category[] = ['food', 'transport', 'entertainment', 'education', 'housing', 'utilities', 'health', 'clothing', 'subscriptions', 'other']
+  const categories: Category[] = ['food', 'transport', 'entertainment', 'education', 'housing', 'utilities', 'health', 'clothing', 'subscriptions', 'shopping', 'bills', 'other']
+  const paymentMethods: PaymentMethod[] = ['cash', 'online', 'upi', 'card']
   const descriptions: Record<Category, string[]> = {
     food: ['Grocery shopping', 'Coffee shop', 'Lunch with friends', 'Pizza delivery', 'Breakfast sandwich'],
     transport: ['Bus pass', 'Uber ride', 'Gas station', 'Parking fee', 'Metro card'],
@@ -34,6 +37,8 @@ function generateSampleData(): Transaction[] {
     health: ['Gym membership', 'Medicine', 'Doctor visit', 'Vitamins', 'Sports equipment'],
     clothing: ['New shoes', 'Winter jacket', 'T-shirts', 'Jeans', 'Accessories'],
     subscriptions: ['Spotify', 'Netflix', 'Amazon Prime', 'Cloud storage', 'News subscription'],
+    shopping: ['Amazon order', 'Flipkart sale', 'Electronics', 'Home decor', 'Gadgets'],
+    bills: ['Credit card bill', 'Insurance', 'Loan EMI', 'Mobile recharge', 'DTH recharge'],
     other: ['Gift for friend', 'Miscellaneous', 'Emergency expense', 'Lost item replacement', 'Donation']
   }
 
@@ -52,18 +57,21 @@ function generateSampleData(): Transaction[] {
       const category = categories[Math.floor(Math.random() * categories.length)]
       const descOptions = descriptions[category]
       const description = descOptions[Math.floor(Math.random() * descOptions.length)]
+      const paymentMethod = paymentMethods[Math.floor(Math.random() * paymentMethods.length)]
       
-      // Amount varies by category
-      let baseAmount = 10
-      if (category === 'housing') baseAmount = 400
-      else if (category === 'education') baseAmount = 50
-      else if (category === 'utilities') baseAmount = 40
-      else if (category === 'subscriptions') baseAmount = 12
-      else if (category === 'food') baseAmount = 15
-      else if (category === 'transport') baseAmount = 8
-      else if (category === 'entertainment') baseAmount = 25
-      else if (category === 'health') baseAmount = 35
-      else if (category === 'clothing') baseAmount = 45
+      // Amount varies by category (in INR)
+      let baseAmount = 500
+      if (category === 'housing') baseAmount = 15000
+      else if (category === 'education') baseAmount = 2000
+      else if (category === 'utilities') baseAmount = 1500
+      else if (category === 'subscriptions') baseAmount = 500
+      else if (category === 'food') baseAmount = 400
+      else if (category === 'transport') baseAmount = 300
+      else if (category === 'entertainment') baseAmount = 800
+      else if (category === 'health') baseAmount = 1200
+      else if (category === 'clothing') baseAmount = 1500
+      else if (category === 'shopping') baseAmount = 2000
+      else if (category === 'bills') baseAmount = 3000
 
       const amount = baseAmount + Math.random() * baseAmount * 0.5
 
@@ -74,6 +82,7 @@ function generateSampleData(): Transaction[] {
         category,
         triage: Math.random() > 0.4 ? 'need' : 'want',
         description,
+        paymentMethod,
         createdAt: date,
         updatedAt: date
       })
@@ -93,16 +102,20 @@ const defaultAnalytics: AnalyticsData = {
   wantsTotal: 0,
   needsWantsRatio: { needs: 0, wants: 0 },
   categoryBreakdown: [],
-  monthlyTrends: []
+  monthlyTrends: [],
+  averageTransactionSize: 0,
+  transactionCount: 0
 }
 
 export function ExpenseProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [splitBills, setSplitBills] = useState<SplitBill[]>([])
   const [settings, setSettings] = useState<UserSettings>({
-    monthlyBudget: 2000,
-    savingsGoal: 300,
-    currency: 'INR'
+    monthlyBudget: 50000,
+    savingsGoal: 10000,
+    currency: 'INR',
+    balance: 100000,
+    customCategories: []
   })
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -117,8 +130,8 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
   const analytics = useMemo(() => {
     if (!mounted) return defaultAnalytics
-    return calculateAnalytics(transactions, settings.monthlyBudget)
-  }, [transactions, settings.monthlyBudget, mounted])
+    return calculateAnalytics(transactions, settings.monthlyBudget, settings.balance)
+  }, [transactions, settings.monthlyBudget, settings.balance, mounted])
 
   const addTransaction = useCallback((transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date()
@@ -129,6 +142,11 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
       updatedAt: now
     }
     setTransactions((prev) => [...prev, newTransaction])
+    // Deduct from balance
+    setSettings((prev) => ({
+      ...prev,
+      balance: Math.max(0, prev.balance - transaction.amount)
+    }))
   }, [])
 
   const updateTransaction = useCallback((id: string, updates: Partial<Transaction>) => {
@@ -142,13 +160,25 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const deleteTransaction = useCallback((id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id))
+    setTransactions((prev) => {
+      const transaction = prev.find(t => t.id === id)
+      if (transaction) {
+        // Refund to balance
+        setSettings((s) => ({
+          ...s,
+          balance: s.balance + transaction.amount
+        }))
+      }
+      return prev.filter((t) => t.id !== id)
+    })
   }, [])
 
   const addSplitBill = useCallback((bill: Omit<SplitBill, 'id'>) => {
     const newBill: SplitBill = {
       ...bill,
-      id: generateId()
+      id: generateId(),
+      messages: bill.messages || [],
+      status: bill.status || 'pending'
     }
     setSplitBills((prev) => [...prev, newBill])
   }, [])
@@ -169,6 +199,20 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     setSettings((prev) => ({ ...prev, ...updates }))
   }, [])
 
+  const addBalance = useCallback((amount: number) => {
+    setSettings((prev) => ({
+      ...prev,
+      balance: prev.balance + amount
+    }))
+  }, [])
+
+  const addCustomCategory = useCallback((category: string) => {
+    setSettings((prev) => ({
+      ...prev,
+      customCategories: [...prev.customCategories, category]
+    }))
+  }, [])
+
   const value: ExpenseContextType = {
     transactions,
     splitBills,
@@ -181,7 +225,9 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     addSplitBill,
     updateSplitBill,
     deleteSplitBill,
-    updateSettings
+    updateSettings,
+    addBalance,
+    addCustomCategory
   }
 
   return (
