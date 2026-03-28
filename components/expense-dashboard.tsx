@@ -23,7 +23,7 @@ import Image from 'next/image'
 import { LayoutDashboard, PieChart, Receipt, Users, Settings } from 'lucide-react'
 
 export function ExpenseDashboard() {
-  const { settings, updateSettings } = useExpenses()
+  const { settings, updateSettings, splitBills, updateSplitBill } = useExpenses()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [budget, setBudget] = useState(settings.monthlyBudget.toString())
 
