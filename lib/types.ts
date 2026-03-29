@@ -112,3 +112,53 @@ export const PAYMENT_CONFIG: Record<PaymentMethod, { label: string; icon: string
 
 // USD to INR conversion rate (approximate)
 export const USD_TO_INR_RATE = 83.50
+
+// AI SMS Parsing Types
+export interface ParsedSMS {
+  id: string
+  originalText: string
+  extractedAmount: number
+  merchant: string
+  category: Category
+  date: Date
+  confidence: number
+  paymentMethod?: PaymentMethod
+  createdAt: Date
+}
+
+export interface SMSParseResult {
+  success: boolean
+  data?: ParsedSMS
+  error?: string
+  confidence?: number
+}
+
+// Reminder Types
+export type ReminderStatus = 'pending' | 'sent' | 'confirmed' | 'completed'
+export type ReminderType = 'split' | 'personal' | 'payment'
+export type ReminderFrequency = 'once' | 'daily' | 'every_2_days' | 'weekly'
+
+export interface Reminder {
+  id: string
+  type: ReminderType
+  title: string
+  message: string
+  relatedId?: string // Split bill ID or other entity ID
+  members?: SplitBillParticipant[]
+  status: ReminderStatus
+  dueDate: Date
+  frequency: ReminderFrequency
+  nextReminder?: Date
+  isRead: boolean
+  createdAt: Date
+}
+
+export interface ChatMessage {
+  id: string
+  reminderId: string
+  sender: string
+  text: string
+  timestamp: Date
+  isRead: boolean
+  type: 'message' | 'system' | 'reminder_sent'
+}

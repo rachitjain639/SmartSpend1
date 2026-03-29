@@ -1,12 +1,15 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from 'react'
-import type { Transaction, Category, TriageType, SplitBill, UserSettings, AnalyticsData, PaymentMethod } from './types'
+import type { Transaction, Category, TriageType, SplitBill, UserSettings, AnalyticsData, PaymentMethod, ParsedSMS, Reminder, ChatMessage } from './types'
 import { calculateAnalytics, generateId } from './expense-engine'
 
 interface ExpenseContextType {
   transactions: Transaction[]
   splitBills: SplitBill[]
+  parsedSMS: ParsedSMS[]
+  reminders: Reminder[]
+  chatMessages: ChatMessage[]
   settings: UserSettings
   analytics: AnalyticsData
   isLoading: boolean
@@ -16,6 +19,12 @@ interface ExpenseContextType {
   addSplitBill: (bill: Omit<SplitBill, 'id'>) => void
   updateSplitBill: (id: string, updates: Partial<SplitBill>) => void
   deleteSplitBill: (id: string) => void
+  addParsedSMS: (sms: ParsedSMS) => void
+  deleteParsedSMS: (id: string) => void
+  addReminder: (reminder: Omit<Reminder, 'id' | 'createdAt'>) => void
+  updateReminder: (id: string, updates: Partial<Reminder>) => void
+  deleteReminder: (id: string) => void
+  sendChatMessage: (message: Omit<ChatMessage, 'id' | 'isRead'>) => void
   updateSettings: (updates: Partial<UserSettings>) => void
   addBalance: (amount: number) => void
   addCustomCategory: (category: string) => void
@@ -110,6 +119,9 @@ const defaultAnalytics: AnalyticsData = {
 export function ExpenseProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [splitBills, setSplitBills] = useState<SplitBill[]>([])
+  const [parsedSMS, setParsedSMS] = useState<ParsedSMS[]>([])
+  const [reminders, setReminders] = useState<Reminder[]>([])
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [settings, setSettings] = useState<UserSettings>({
     monthlyBudget: 50000,
     savingsGoal: 10000,
@@ -213,9 +225,51 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
+  // SMS Parsing Methods
+  const addParsedSMS = useCallback((sms: ParsedSMS) => {
+    setParsedSMS((prev) => [...prev, sms])
+  }, [])
+
+  const deleteParsedSMS = useCallback((id: string) => {
+    setParsedSMS((prev) => prev.filter((s) => s.id !== id))
+  }, [])
+
+  // Reminder Methods
+  const addReminder = useCallback((reminder: Omit<Reminder, 'id' | 'createdAt'>) => {
+    const newReminder: Reminder = {
+      ...reminder,
+      id: generateId(),
+      createdAt: new Date()
+    }
+    setReminders((prev) => [...prev, newReminder])
+  }, [])
+
+  const updateReminder = useCallback((id: string, updates: Partial<Reminder>) => {
+    setReminders((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...updates } : r))
+    )
+  }, [])
+
+  const deleteReminder = useCallback((id: string) => {
+    setReminders((prev) => prev.filter((r) => r.id !== id))
+  }, [])
+
+  // Chat Message Methods
+  const sendChatMessage = useCallback((message: Omit<ChatMessage, 'id' | 'isRead'>) => {
+    const newMessage: ChatMessage = {
+      ...message,
+      id: generateId(),
+      isRead: false
+    }
+    setChatMessages((prev) => [...prev, newMessage])
+  }, [])
+
   const value: ExpenseContextType = {
     transactions,
     splitBills,
+    parsedSMS,
+    reminders,
+    chatMessages,
     settings,
     analytics,
     isLoading,
@@ -225,6 +279,12 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     addSplitBill,
     updateSplitBill,
     deleteSplitBill,
+    addParsedSMS,
+    deleteParsedSMS,
+    addReminder,
+    updateReminder,
+    deleteReminder,
+    sendChatMessage,
     updateSettings,
     addBalance,
     addCustomCategory

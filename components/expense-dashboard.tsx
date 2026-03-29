@@ -19,12 +19,15 @@ import { SplitTransactionHistory } from './split-transaction-history'
 import { MonthlySummary } from './monthly-summary'
 import { ContactSection } from './contact-section'
 import { ThemeToggle } from './theme-toggle'
+import { AISMSInput } from './ai-sms-input'
+import { RemindersChat } from './reminders-chat'
 import Image from 'next/image'
-import { LayoutDashboard, PieChart, Receipt, Users, Settings } from 'lucide-react'
+import { LayoutDashboard, PieChart, Receipt, Users, MessageSquare, Zap } from 'lucide-react'
 
 export function ExpenseDashboard() {
-  const { settings, updateSettings, splitBills, updateSplitBill } = useExpenses()
+  const { settings, updateSettings, splitBills, updateSplitBill, reminders, chatMessages, addReminder, updateReminder, sendChatMessage } = useExpenses()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [smsParserOpen, setSmsParserOpen] = useState(false)
   const [budget, setBudget] = useState(settings.monthlyBudget.toString())
 
   const handleSaveSettings = () => {
@@ -52,6 +55,17 @@ export function ExpenseDashboard() {
               {/* Action Buttons */}
               <AddBalanceForm />
               <TransactionForm />
+              
+              {/* SMS Parser Button */}
+              <Button 
+                onClick={() => setSmsParserOpen(true)}
+                variant="outline" 
+                size="icon" 
+                className="border-border hover:bg-secondary group"
+                title="Parse SMS for expenses"
+              >
+                <Zap className="h-4 w-4 group-hover:text-primary transition-colors" />
+              </Button>
               
               {/* Theme Toggle */}
               <ThemeToggle />
@@ -104,7 +118,7 @@ export function ExpenseDashboard() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="bg-secondary/50 border border-border p-1.5 w-full sm:w-auto inline-flex rounded-xl">
+          <TabsList className="bg-secondary/50 border border-border p-1.5 w-full sm:w-auto inline-flex rounded-xl overflow-x-auto">
             <TabsTrigger
               value="dashboard"
               className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
@@ -132,6 +146,13 @@ export function ExpenseDashboard() {
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Split Bills</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="reminders"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm gap-2 rounded-lg transition-all duration-200"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Reminders</span>
             </TabsTrigger>
           </TabsList>
 
@@ -190,8 +211,21 @@ export function ExpenseDashboard() {
               </div>
             </div>
           </TabsContent>
+
+          {/* Reminders Tab */}
+          <TabsContent value="reminders" className="space-y-6">
+            <RemindersChat
+              reminders={reminders}
+              chatMessages={chatMessages}
+              onAddReminder={addReminder}
+              onUpdateReminder={updateReminder}
+              onSendMessage={sendChatMessage}
+            />
+          </TabsContent>
         </Tabs>
-      </main>
+
+        {/* SMS Parser Modal */}
+        <AISMSInput open={smsParserOpen} onOpenChange={setSmsParserOpen} />
 
       {/* Contact Section / Footer */}
       <ContactSection />
