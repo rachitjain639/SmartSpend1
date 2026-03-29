@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SplitDetailModal } from './split-detail-modal'
@@ -34,16 +33,15 @@ export function SplitTransactionHistory({
     setModalOpen(true)
   }
 
-  const handleUpdateBill = (updates: Partial<SplitBill>) => {
-    if (selectedBill) {
-      onUpdateBill(selectedBill.id, updates)
-      setSelectedBill({ ...selectedBill, ...updates })
-    }
+  const handleUpdateBill = (id: string, updates: Partial<SplitBill>) => {
+    onUpdateBill(id, updates)
+    setSelectedBill(null)
+    setModalOpen(false)
   }
 
   return (
     <>
-      <Card className="bg-card border-border/50 p-6">
+      <div className="rounded-lg bg-card border border-border/50 p-6 backdrop-blur-md">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -183,11 +181,11 @@ export function SplitTransactionHistory({
             </TabsContent>
           </Tabs>
         </div>
-      </Card>
+      </div>
 
       {/* Detail Modal */}
       <SplitDetailModal
-        bill={selectedBill}
+        split={selectedBill}
         open={modalOpen}
         onOpenChange={setModalOpen}
         onUpdateBill={handleUpdateBill}
